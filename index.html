@@ -2,10 +2,19 @@
 <html lang="en">
 <head>
     <script>
+        // Detect if running inside Excellent Institute Mobile App
+        function isMobileApp() {
+            return !!(window.isExcellentMobileApp || window.location.hash.includes('admin') || window.location.search.includes('target=') || window.location.search.includes('chapter='));
+        }
+        if (isMobileApp()) {
+            localStorage.setItem('excellent_auth', 'true');
+        }
+
         // Universal Gatekeeper Script
         if (localStorage.getItem('excellent_auth') !== 'true') {
             document.addEventListener("DOMContentLoaded", function() {
-                document.body.style.visibility = "hidden"; 
+                if (isMobileApp()) return;
+                document.body.style.visibility = "hidden";
                 document.body.style.overflow = "hidden";
                 
                 const lockDiv = document.createElement('div');
@@ -297,7 +306,15 @@
         // Global DCA Lock Variable
         let isDcaUnlocked = false; 
 
+        // Universal Data Hook for Flutter Offline PDF Builder
+        function getCourseData() {
+            return typeof digitalBookData !== 'undefined' ? digitalBookData : null;
+        }
+
         function initApp() {
+            if (isMobileApp()) {
+                isDcaUnlocked = true;
+            }
             if (typeof digitalBookData === 'undefined') {
                 contentDisplay.innerHTML = `<h2 style="color:red; text-align:center; padding:50px;">Awaiting Data File...</h2>`;
                 return;
